@@ -12,7 +12,7 @@ define("port", default=8000, help="run on the given port", type=int)
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('index.html')
+        self.render('01-index.html')
 
 
 class PoemPageHandler(tornado.web.RequestHandler):
@@ -22,7 +22,8 @@ class PoemPageHandler(tornado.web.RequestHandler):
         verb = self.get_argument('verb')
         noun3 = self.get_argument('noun3')
         self.render(
-            'poem.html', roads=noun1, wood=noun2, made=verb, difference=noun3)
+            '01-poem.html', roads=noun1, wood=noun2,
+            made=verb, difference=noun3)
 
 
 if __name__ == "__main__":
