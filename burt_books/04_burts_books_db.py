@@ -1,7 +1,9 @@
 # coding: utf-8
+import time
+import os.path
+
 import pymongo
 
-import os.path
 import tornado.auth
 import tornado.httpserver
 import tornado.ioloop
@@ -17,6 +19,8 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", MainHandler),
             (r"/recommended/", RecommendedHandler),
+            (r"/edit/([0-9Xx\-]+)", BookEditHandler),
+            (r"/add", BookEditHandler),
         ]
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -47,6 +51,39 @@ class BookModule(tornado.web.UIModule):
 
     def css_files(self):
         return "/static/css/recommended.css"
+
+
+class BookEditHandler(tornado.web.RequestHandler):
+    def get(self, isbn=None):
+        book = dict()
+        if isbn:
+            coll = self.application.db.books
+            book = coll.find_one({"isbn": isbn})
+        self.render(
+            "book_edit.html",
+            page_title="Burt's Books | Recommended Reading",
+            header_text="Edit book",
+            book=book,
+        )
+
+    def post(self, isbn=None):
+        book_fields = [
+            "isbn", "title", "subtitle", "image",
+            "author", "date_released", "description"
+        ]
+        coll = self.application.db.books
+        book = dict()
+        if isbn:
+            book = coll.find_one({"isbn": isbn})
+        for key in book_fields:
+            book[key] = self.get_argument(key, None)
+
+        if isbn:
+            coll.save(book)
+        else:
+            book['date_added'] = int(time.time())
+            coll.insert(book)
+        self.redirect("/recommended/")
 
 
 class RecommendedHandler(tornado.web.RequestHandler):
