@@ -31,6 +31,38 @@ class MainHandler(tornado.web.RequestHandler):
         )
 
 
+class BookModule(tornado.web.UIModule):
+    def render(self, book):
+        return self.render_string('modules/book.html', book=book)
+
+    def embedded_javascript(self):
+        return "document.write(\"hi!\")"
+
+    def embedded_css(self):
+        return ".book {background-color:#F5F5F5}"
+
+
+class RecommendedHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render(
+            "recommended.html",
+            page_title="Burt's Books | Recommended Reading",
+            header_text="Recommended Reading",
+            books=[
+                {
+                    "title": "Programming Collective Intelligence",
+                    "subtitle": "Building Smart web 2.0 Applications",
+                    "image": "/static/images/collective_intelligence.gif",
+                    "author": "Toby Segaran",
+                    "date_added": 1310248056,
+                    "date_released": "August 2007",
+                    "isbn": "978-0-596-52932-1",
+                    "description": "<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam</p>"
+                },
+            ]
+        )
+
+
 if __name__ == "__main__":
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
